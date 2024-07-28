@@ -15,7 +15,7 @@ class Connection(Base):
     id = Column(Integer, primary_key=True, index=True)
     from_city_id = Column(Integer, ForeignKey('cities.id'))
     to_city_id = Column(Integer, ForeignKey('cities.id'))
-    distance = Column(Integer)
+    distance = Column(Integer) # Сделать только положитьельным
 
     from_city = relationship("City", foreign_keys=[from_city_id])
     to_city = relationship("City", foreign_keys=[to_city_id])
