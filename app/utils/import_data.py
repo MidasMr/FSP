@@ -1,9 +1,10 @@
 import os
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine
-from app.models import Base, City, Connection
+from app.db.session import SessionLocal, engine
+from app.db.models import Base, City, Connection
 
 Base.metadata.create_all(bind=engine)
+
 
 def load_data(file_path: str):
     if not os.path.exists(file_path):
@@ -24,6 +25,7 @@ def load_data(file_path: str):
 
     return cities_set, connections
 
+
 def save_data_to_db(cities, connections, db: Session):
     city_map = {}
     for city in cities:
@@ -41,6 +43,7 @@ def save_data_to_db(cities, connections, db: Session):
 
     db.commit()
 
+
 def main():
     db = SessionLocal()
     try:
@@ -49,6 +52,7 @@ def main():
         save_data_to_db(cities, connections, db)
     finally:
         db.close()
+
 
 if __name__ == '__main__':
     main()
