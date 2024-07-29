@@ -13,10 +13,14 @@ router = APIRouter()
 
 @router.post("/", response_model=CitySchema)
 def create_city(city: CityCreateSchema, db: Session = Depends(get_db)):
-    db_city = city_crud.get_city_by_name(db, name=city.name)
-    if db_city:
+    if city_crud.get_city_by_name(db, name=city.name):
         raise HTTPException(status_code=400, detail="City already registered")
     return city_crud.create_city(db=db, city=city)
+
+
+@router.get("/", response_model=CitySchema)
+def all_cities(db: Session = Depends(get_db)):
+    return city_crud.get_all_cities(db)
 
 
 @router.get("/{city}/findShortestPath")
