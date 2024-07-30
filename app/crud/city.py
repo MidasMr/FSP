@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.db.models import City
 from app.schemas.city import CityCreate
 
@@ -8,7 +9,9 @@ def get_all_cities(db: Session):
 
 
 def get_city_by_name(db: Session, name: str):
-    return db.query(City).filter(City.name == name).first()
+    return db.query(City).filter(
+        func.lower(City.name) == func.lower(name)
+    ).first()
 
 
 def create_city(db: Session, city: CityCreate):
