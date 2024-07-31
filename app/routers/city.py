@@ -43,9 +43,9 @@ def find_shortest_path(city: str, target_city: str, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Path not found")
 
     return {
-        "city": city,
+        "city": from_city.name,
         "result": {
             "distance": distance,
-            "targetCity": target_city
+            "targetCity": to_city.name
         }
     }

@@ -12,6 +12,7 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.routers.city import router
 from app.main import app
+from app.utils import import_data
 
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -52,3 +53,13 @@ def client(db_session: Session):
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def setup_database(db_session):
+    db = db_session
+    try:
+        cities, connections = import_data.load_data('sample.txt')
+        import_data.save_data_to_db(cities, connections, db)
+    finally:
+        db.close()
