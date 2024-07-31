@@ -5,6 +5,8 @@ from app.routers import city
 
 app = FastAPI()
 
+print(engine, 'LOLOLOLOLOLOLOLOLOLO')
+
 Base.metadata.create_all(bind=engine)
 
 app.include_router(city.router, prefix="/cities", tags=["cities"])
