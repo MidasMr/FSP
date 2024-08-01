@@ -11,11 +11,12 @@ from app.db.models import Connection
 router = APIRouter()
 
 
-@router.post("/", response_model=CitySchema)
+@router.post("/", response_model=CitySchema, status_code=201)
 def create_city(city: CityCreateSchema, db: Session = Depends(get_db)):
     if city_crud.get_city_by_name(db, name=city.name):
         raise HTTPException(status_code=400, detail="City already registered")
-    return city_crud.create_city(db=db, city=city)
+    city = city_crud.create_city(db=db, city=city)
+    return city
 
 
 @router.get("/", response_model=list[CitySchema])
@@ -24,20 +25,22 @@ def all_cities(db: Session = Depends(get_db)):
 
 
 @router.get("/{city}/findShortestPath")
-def find_shortest_path(city: str, target_city: str, db: Session = Depends(get_db)):
-    from_city = city_crud.get_city_by_name(name=city, db=db)
-    to_city = city_crud.get_city_by_name(name=target_city, db=db)
+def find_shortest_path(city: int, target_city: int, db: Session = Depends(get_db)):
+    from_city = city_crud.get_city_by_id(id=city, db=db)
+    to_city = city_crud.get_city_by_id(id=target_city, db=db)
 
-    if not from_city or not to_city:
+    if not from_city:
         raise HTTPException(status_code=404, detail="City not found")
+    elif not to_city:
+        raise HTTPException(status_code=404, detail="Target city not found")
 
     graph = defaultdict(dict)
     connections = db.query(Connection).all()
     for connection in connections:
-        graph[connection.from_city.name][connection.to_city.name] = connection.distance
+        graph[connection.from_city.id][connection.to_city.id] = connection.distance
 
-    distances = dijkstra(graph, from_city.name)
-    distance = distances.get(to_city.name, float('infinity'))
+    distances = dijkstra(graph, from_city.id)
+    distance = distances.get(to_city.id, float('infinity'))
 
     if distance == float('infinity'):
         raise HTTPException(status_code=404, detail="Path not found")
