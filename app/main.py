@@ -8,5 +8,4 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
 app.include_router(city.router, prefix="/cities", tags=["cities"])
-
 app.include_router(connection.router, prefix="/connections", tags=["connections"])

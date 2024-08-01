@@ -30,5 +30,4 @@ def create_connection(db: Session, connection: ConnectionCreate):
     
     db.add_all(db_connections)
     db.commit()
-    # db.refresh(db_connections)
     return db_connections
