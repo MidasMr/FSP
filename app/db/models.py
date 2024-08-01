@@ -7,10 +7,7 @@ from .base import Base
 class City(Base):
     __tablename__ = 'cities'
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-
-
-Index('uniqueNameIdx', func.lower(City.name), unique=True)
+    name = Column(String, index=True)
 
 
 class Connection(Base):

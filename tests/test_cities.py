@@ -65,22 +65,28 @@ def test_city_creation(client):
     assert response.status_code == 201
     assert response.json() == {'id': 10, 'name': 'Vladivostok'}
 
-    # Check cant create city with same name
+    # Check can create city with same name
     response = client.post(
         'cities',
         json={
             'name': 'Vladivostok'
         }
     )
-    assert response.status_code == 400
-    assert response.json() == {'detail': 'City already registered'}
+    assert response.status_code == 201
+    assert response.json() == {'id': 11, 'name': 'Vladivostok'}
 
-    # # Check cant create city with same name in other case
-    # response = client.post(
-    #     'cities',
-    #     json={
-    #         'name': 'VlAdIvOsToK'
-    #     }
-    # )
-    # assert response.status_code == 400
-    # assert response.json() == {'detail': 'City already registered'}
+def test_cities_list(client):
+    response = client.get('cities')
+    assert response.status_code == 200
+    print(response.json())
+    assert response.json() == [
+        {'name': 'Renton', 'id': 1},
+        {'name': 'SoDo', 'id': 2},
+        {'name': 'Factoria', 'id': 3},
+        {'name': 'Issaquah', 'id': 4},
+        {'name': 'Seattle', 'id': 5},
+        {'name': 'Bellevue', 'id': 6},
+        {'name': 'Redmond', 'id': 7},
+        {'name': 'Eastlake', 'id': 8},
+        {'name': 'Northup', 'id': 9}
+    ]
