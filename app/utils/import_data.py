@@ -10,7 +10,7 @@ def load_data(file_path: str):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"{file_path} does not exist")
 
-    cities_set = set()
+    cities_by_name = {}
     connections = []
 
     with open(file_path, 'r') as file:
@@ -18,37 +18,30 @@ def load_data(file_path: str):
             parts = line.strip().split()
             if len(parts) != 3:
                 continue
-            city1, city2, distance = parts
-            distance = int(distance)
-            cities_set.update([city1, city2])
-            connections.append((city1, city2, distance))
+            city1_name, city2_name, distance = parts
 
-    return cities_set, connections
+            city1 = cities_by_name.get(city1_name) or City(name=city1_name)
+            city2 = cities_by_name.get(city2_name) or City(name=city2_name)
+
+            connections.append(Connection(from_city=city1, to_city=city2, distance=int(distance)))
+
+            cities_by_name[city1_name] = city1
+            cities_by_name[city2_name] = city2
+
+    return cities_by_name, connections
 
 
-def save_data_to_db(cities, connections, db: Session):
-    city_map = {}
-    for city in cities:
-        db_city = City(name=city)
-        db.add(db_city)
-        db.commit()
-        db.refresh(db_city)
-        city_map[city] = db_city.id
-
-    for city1, city2, distance in connections:
-        from_city_id = city_map[city1]
-        to_city_id = city_map[city2]
-        db_connection = Connection(from_city_id=from_city_id, to_city_id=to_city_id, distance=distance)
-        db.add(db_connection)
-
+def save_data_to_db(cities: dict[str, City], connections: list[Connection], db: Session):
+    db.add_all(cities.values())
+    db.add_all(connections)
     db.commit()
+    print('SUCCESS')
 
 
 def main():
     db = SessionLocal()
     try:
-        file_path = 'sample.txt'
-        cities, connections = load_data(file_path)
+        cities, connections = load_data('sample.txt')
         save_data_to_db(cities, connections, db)
     finally:
         db.close()
