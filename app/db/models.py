@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.orm import relationship, validates
 
 from .base import Base
@@ -7,9 +7,7 @@ from .base import Base
 class City(Base):
     __tablename__ = 'cities'
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-
-    # Добавить индексы
+    name = Column(String, index=True)
 
 
 class Connection(Base):

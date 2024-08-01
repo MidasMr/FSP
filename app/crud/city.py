@@ -8,7 +8,15 @@ def get_all_cities(db: Session):
 
 
 def get_city_by_name(db: Session, name: str):
-    return db.query(City).filter(City.name == name).first()
+    return db.query(City).filter(
+        City.name == name
+    ).first()
+
+
+def get_city_by_id(db: Session, id: int):
+    return db.query(City).filter(
+        City.id == id
+    ).first()
 
 
 def create_city(db: Session, city: CityCreate):
