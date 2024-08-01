@@ -59,7 +59,52 @@ def test_connections_created_path_search(client):
     assert response.status_code == 404
     assert response.json() == {'detail': 'Path not found'}
 
-    connection_1_2 = client(
-
+    # Add connections to intermediate citiy
+    connection_1_3 = client.post(
+        'connections',
+        json={
+            'from_city_id': response_1.json()["id"],
+            'to_city_id': response_3.json()["id"],
+            'distance': 300
+        }
     )
+    assert connection_1_3.status_code == 201
 
+    connection_2_3 = client.post(
+        'connections',
+        json={
+            'from_city_id': response_2.json()["id"],
+            'to_city_id': response_3.json()["id"],
+            'distance': 600
+        }
+    )
+    assert connection_2_3.status_code == 201
+
+    response = client.get(
+        f'/cities/{response_1.json()["id"]}/findShortestPath?target_city={response_2.json()["id"]}'
+    )
+    assert response.status_code == 200
+    assert response.json() == {'city': 'Vladivostok', 'result': {'distance': 900, 'targetCity': 'Khabarovsk'}}
+
+    response = client.get(
+        f'/cities/{response_2.json()["id"]}/findShortestPath?target_city={response_1.json()["id"]}'
+    )
+    assert response.status_code == 200
+    assert response.json() == {'city': 'Khabarovsk', 'result': {'distance': 900, 'targetCity': 'Vladivostok'}}
+
+    # Add straight connection to target city
+    connection_1_2 = client.post(
+        'connections',
+        json={
+            'from_city_id': response_1.json()["id"],
+            'to_city_id': response_2.json()["id"],
+            'distance': 800
+        }
+    )
+    assert connection_1_2.status_code == 201
+
+    response = client.get(
+        f'/cities/{response_1.json()["id"]}/findShortestPath?target_city={response_2.json()["id"]}'
+    )
+    assert response.status_code == 200
+    assert response.json() == {'city': 'Vladivostok', 'result': {'distance': 800, 'targetCity': 'Khabarovsk'}}
