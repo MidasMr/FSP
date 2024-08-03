@@ -14,17 +14,17 @@ def test_create_connections(client):
     assert response.status_code == 201
     assert response.json() == [
         {
-            'id': 29,
+            'id': 15,
             'from_city_id': 1,
             'to_city_id': 5,
             'distance': 1
         },
-        {
-            'id': 30,
-            'from_city_id': 5,
-            'to_city_id': 1,
-            'distance': 1
-        },
+        # {
+        #     'id': 30,
+        #     'from_city_id': 5,
+        #     'to_city_id': 1,
+        #     'distance': 1
+        # },
     ]
 
 
@@ -108,3 +108,112 @@ def test_connections_created_path_search(client):
     )
     assert response.status_code == 200
     assert response.json() == {'city': 'Vladivostok', 'result': {'distance': 800, 'targetCity': 'Khabarovsk'}}
+
+def test_create_connection_nested_to_city(client, db_session):
+    response = client.post(
+        f'cities/{get_city_by_name(db_session, "SoDo").id}/connections',
+        json={
+            'to_city_id': get_city_by_name(db_session, "Issaquah").id,
+            'distance': 10 
+        }
+    )
+
+    assert response.status_code == 201
+    assert response.json() == [
+        {
+            'id': 15,
+            'from_city_id': 2,
+            'to_city_id': 4,
+            'distance': 10
+        },
+        # {
+        #     'id': 30,
+        #     'from_city_id': 4,
+        #     'to_city_id': 2,
+        #     'distance': 10
+        # },
+    ]
+
+
+def test_get_connections_for_city(client, db_session):
+    response = client.get(
+        f'cities/{get_city_by_name(db_session, "Seattle").id}/connections'
+    )
+
+    json_response = response.json()
+    assert response.status_code == 200
+    assert len(json_response) == 2
+    assert json_response == [
+        {'from_city_id': 2, 'to_city_id': 5, 'distance': 1, 'id': 5},
+        # {'from_city_id': 5, 'to_city_id': 2, 'distance': 1, 'id': 10},
+        {'from_city_id': 5, 'to_city_id': 8, 'distance': 2, 'id': 10},
+        # {'from_city_id': 8, 'to_city_id': 5, 'distance': 2, 'id': 20}
+    ]
+
+
+def test_get_all_connections(client):
+    response = client.get(
+        'connections'
+    )
+    json_response = response.json()
+    assert response.status_code == 200
+    assert len(json_response) == 14
+
+    assert json_response[0] == {
+        'id': 1,
+        'from_city_id': 1,
+        'to_city_id': 2,
+        'distance': 12
+    }
+
+    assert json_response[-1] == {
+        'id': 14,
+        'from_city_id': 9,
+        'to_city_id': 7,
+        'distance': 5
+    }
+
+
+def test_connection_delete(client):
+    response = client.delete(
+        'connections/1'
+    )
+    assert response.status_code == 204
+
+    response = client.get(
+        'connections'
+    )
+    assert response.status_code == 200
+    assert len(response.json()) == 13
+
+
+def test_nested_city_connection_delete(client, db_session):
+    connections_before = client.get(
+        f'cities/{get_city_by_name(db_session, "Seattle").id}/connections'
+    )
+
+    assert len(connections_before.json()) == 2
+
+    connections_before_json = connections_before.json()
+
+    assert connections_before_json == [
+        {'from_city_id': 2, 'to_city_id': 5, 'distance': 1, 'id': 5},
+        # {'from_city_id': 5, 'to_city_id': 2, 'distance': 1, 'id': 10},
+        {'from_city_id': 5, 'to_city_id': 8, 'distance': 2, 'id': 10},
+        # {'from_city_id': 8, 'to_city_id': 5, 'distance': 2, 'id': 20}
+    ]
+
+    response = client.delete(
+        'connections/5'
+    )
+    assert response.status_code == 204
+
+    response = client.get(
+        f'cities/{get_city_by_name(db_session, "Seattle").id}/connections'
+    )
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+    assert response.json() == [
+        {'from_city_id': 5, 'to_city_id': 8, 'distance': 2, 'id': 10},
+    ]

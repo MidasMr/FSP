@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Index, func
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Index, func, CheckConstraint
 from sqlalchemy.orm import relationship, validates
 
 from .base import Base
@@ -9,18 +9,23 @@ class City(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
 
+    connections_from = relationship("Connection", foreign_keys='Connection.from_city_id', cascade="all, delete-orphan")
+    connections_to = relationship("Connection", foreign_keys='Connection.to_city_id', cascade="all, delete-orphan")
+
 
 class Connection(Base):
     __tablename__ = 'connections'
     id = Column(Integer, primary_key=True, index=True)
-    from_city_id = Column(Integer, ForeignKey('cities.id'))
-    to_city_id = Column(Integer, ForeignKey('cities.id'))
+    from_city_id = Column(Integer, ForeignKey('cities.id', ondelete='CASCADE'), nullable=False)
+    to_city_id = Column(Integer, ForeignKey('cities.id', ondelete='CASCADE'), nullable=False)
     distance = Column(Integer)
 
-    from_city = relationship("City", foreign_keys=[from_city_id])
-    to_city = relationship("City", foreign_keys=[to_city_id])
+    from_city = relationship("City", foreign_keys=[from_city_id], back_populates="connections_from")
+    to_city = relationship("City", foreign_keys=[to_city_id], back_populates="connections_to")
+
     __table_args__ = (
-        UniqueConstraint('from_city_id', 'to_city_id', name='_from_city_to_city_unique'),
+        # Index('uq_connection', func.least(from_city_id, to_city_id), func.greatest(from_city_id, to_city_id), unique=True),
+        CheckConstraint('from_city_id != to_city_id', name='check_from_to_city_diff'),
     )
 
     @validates('distance')

@@ -25,3 +25,8 @@ def create_city(db: Session, city: CityCreate):
     db.commit()
     db.refresh(db_city)
     return db_city
+
+
+def delete_city(db: Session, id: int):
+    db.query(City).filter(City.id == id).delete()
+    db.commit()

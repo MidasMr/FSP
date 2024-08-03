@@ -10,7 +10,7 @@ from app.main import app
 from app.utils import import_data
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:" 
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,

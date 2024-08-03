@@ -9,9 +9,9 @@ def get_all_connections(db: Session):
 
 def get_connections_for_city(db: Session, city_id: int):
     return db.query(Connection).filter(
-        Connection.from_city_id == city_id | 
-        Connection.to_city == city_id
-    ).first()
+        (Connection.from_city_id == city_id) |
+        (Connection.to_city_id == city_id)
+    ).all()
 
 
 def create_connection(db: Session, connection: ConnectionCreate):
@@ -21,13 +21,18 @@ def create_connection(db: Session, connection: ConnectionCreate):
             to_city_id=connection.to_city_id, 
             distance=connection.distance
         ),
-        Connection(
-            from_city_id=connection.to_city_id, 
-            to_city_id=connection.from_city_id, 
-            distance=connection.distance
-        ),
+        # Connection(
+        #     from_city_id=connection.to_city_id,
+        #     to_city_id=connection.from_city_id,
+        #     distance=connection.distance
+        # ),
     ]
     
     db.add_all(db_connections)
     db.commit()
     return db_connections
+
+
+def delete_connection(db: Session, connection_id: int):
+    db.query(Connection).filter(Connection.id == connection_id).delete()
+    db.commit()
