@@ -68,3 +68,10 @@ def delete_city(city_id: int, db: Session = Depends(get_db)):
     if not city_crud.get_city_by_id(id=city_id, db=db):
         raise HTTPException(status_code=404, detail="City not found")
     city_crud.delete_city(db=db, id=city_id)
+
+
+@router.get("/{city_id}", response_model=CitySchema)
+def get_city(city_id: int, db: Session = Depends(get_db)):
+    if not (city := city_crud.get_city_by_id(id=city_id, db=db)):
+        raise HTTPException(status_code=404, detail="City not found")
+    return city

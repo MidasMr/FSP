@@ -1,5 +1,6 @@
 from app.crud.city import get_city_by_name
 from app.crud.connection import get_all_connections
+from app.db.models import Connection
 
 
 def test_find_shortest_path_no_city(client, db_session):
@@ -95,7 +96,10 @@ def test_cities_list(client):
 
 def test_city_delete(client, db_session):
     connections_count_before = len(get_all_connections(db_session))
-    print(connections_count_before)
+
+    response = client.get('cities/5/connections')
+    assert response.status_code == 200
+    assert len(response.json()) == 2
 
     response = client.delete('cities/5')
     assert response.status_code == 204
@@ -104,9 +108,15 @@ def test_city_delete(client, db_session):
     assert response.status_code == 404
     assert response.json() == {'detail': 'City not found'}
 
-    print( len(get_all_connections(db_session)))
-    assert len(get_all_connections(db_session)) == connections_count_before - 1
+    print(len(get_all_connections(db_session)))
+    assert len(get_all_connections(db_session)) == connections_count_before - 2
 
     response = client.get('cities/5')
     assert response.status_code == 404
     assert response.json() == {'detail': 'City not found'}
+
+
+def test_city_detail(client):
+    response = client.get('cities/5')
+    assert response.status_code == 200
+    assert response.json() == {'name': 'Seattle', 'id': 5}
