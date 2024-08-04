@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.db.models import City, Connection
-from app.schemas.city import CityCreate
+from app.schemas.city import CityCreate, CityUpdate
 
 
 def get_all_cities(db: Session):
@@ -23,7 +23,6 @@ def create_city(db: Session, city: CityCreate):
     db_city = City(name=city.name)
     db.add(db_city)
     db.commit()
-    db.refresh(db_city)
     return db_city
 
 
@@ -31,3 +30,14 @@ def delete_city(db: Session, id: int):
     db.query(City).filter(City.id == id).delete()
     db.query(Connection).filter((Connection.from_city_id == id) | (Connection.to_city_id == id)).delete()
     db.commit()
+
+
+def update_city(db: Session, id: int, city: CityUpdate):
+    db_city = db.query(City).filter(
+        City.id == id
+    )
+    db_city.update(
+        city.model_dump(exclude_unset=True)
+    )
+    db.commit()
+    return db_city.first()

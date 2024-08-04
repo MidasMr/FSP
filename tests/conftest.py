@@ -10,7 +10,7 @@ from app.main import app
 from app.utils import import_data
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:" 
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -23,7 +23,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 Base.metadata.create_all(bind=engine)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def db_session() -> Session:
     """Create a new database session with a rollback at the end of the test."""
     connection = engine.connect()

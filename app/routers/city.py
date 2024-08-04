@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.crud import city as city_crud, connection as connection_crud
-from app.schemas.city import City as CitySchema, CityCreate as CityCreateSchema
+from app.schemas.city import City as CitySchema, CityCreate as CityCreateSchema, CityUpdate as CityUpdateSchema
 from app.schemas.connection import Connection as ConnectionSchema, ConnectionNestedCreate, ConnectionCreate
 from app.algorithms.dijkstra import dijkstra
 from app.db.models import Connection
@@ -58,7 +58,7 @@ def connections_for_city(city_id: int, db: Session = Depends(get_db)):
     return connection_crud.get_connections_for_city(db=db, city_id=city_id)
 
 
-@router.post("/{city_id}/connections", response_model=list[ConnectionSchema], status_code=201)
+@router.post("/{city_id}/connections", response_model=ConnectionSchema, status_code=201)
 def create_connection_for_city(city_id: int, connection: ConnectionNestedCreate, db: Session = Depends(get_db)):
     return connection_crud.create_connection(db=db, connection=ConnectionCreate(**connection.model_dump(), from_city_id=city_id))
 
@@ -75,3 +75,12 @@ def get_city(city_id: int, db: Session = Depends(get_db)):
     if not (city := city_crud.get_city_by_id(id=city_id, db=db)):
         raise HTTPException(status_code=404, detail="City not found")
     return city
+
+
+@router.patch("/{city_id}", response_model=CitySchema)
+def update_city(city_id: int, city: CityUpdateSchema, db: Session = Depends(get_db)):
+    if not (db_city := city_crud.get_city_by_id(id=city_id, db=db)):
+        raise HTTPException(status_code=404, detail="City not found")
+    if db_city.name == city.name:
+        raise HTTPException(status_code=400, detail="Prodvided city name matches current name")
+    return city_crud.update_city(db=db, id=city_id, city=city)

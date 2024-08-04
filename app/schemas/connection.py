@@ -9,8 +9,6 @@ class ConnectionBase(BaseModel):
 class ConnectionCreate(ConnectionBase):
     from_city_id: int
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class ConnectionNestedCreate(ConnectionBase):
     pass

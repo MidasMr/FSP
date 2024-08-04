@@ -120,3 +120,23 @@ def test_city_detail(client):
     response = client.get('cities/5')
     assert response.status_code == 200
     assert response.json() == {'name': 'Seattle', 'id': 5}
+
+
+def test_city_update(client):
+    response = client.patch(
+        'cities/5',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 200
+    assert response.json() == {'id': 5, 'name': 'Vladivostok'}
+
+    response = client.patch(
+        'cities/5',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Prodvided city name matches current name'}
