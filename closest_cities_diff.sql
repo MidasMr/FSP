@@ -1,4 +1,7 @@
-WITH sorted_cities AS (
+WITH city_name AS (
+    SELECT 'Vladivostok' AS city_name -- Введите название города здесь
+),
+sorted_cities AS (
     SELECT
         c1.name AS from_city,
         c2.name AS target_city,
@@ -10,11 +13,11 @@ WITH sorted_cities AS (
     JOIN
         cities c2 ON conn.to_city_id = c2.id
     WHERE
-        c1.name = 'Factoria' -- Замените на конкретное название города
+        c1.name = (SELECT city_name FROM city_name)
     UNION ALL
     SELECT
         c2.name AS from_city,
-        c1.name AS to_city,
+        c1.name AS target_city,
         conn.distance
     FROM
         connections conn
@@ -23,7 +26,7 @@ WITH sorted_cities AS (
     JOIN
         cities c2 ON conn.to_city_id = c2.id
     WHERE
-        c2.name = 'Factoria' -- Замените на конкретное название города
+        c2.name = (SELECT city_name FROM city_name)
     ORDER BY
         target_city
     LIMIT 2
