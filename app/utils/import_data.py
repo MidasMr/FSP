@@ -36,10 +36,13 @@ def save_data_to_db(cities: dict[str, City], connections: list[Connection], db: 
     db.commit()
 
 
-def main(db: Session = Depends(get_db)):
+def main():
     db = SessionLocal()
-    cities, connections = load_data('sample.txt')
-    save_data_to_db(cities, connections, db)
+    try:
+        cities, connections = load_data('sample.txt')
+        save_data_to_db(cities, connections, db)
+    finally:
+        db.close()
 
 
 if __name__ == '__main__':
