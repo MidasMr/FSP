@@ -32,6 +32,31 @@ def test_create_connections(client):
     assert response.status_code == 400
     assert response.json() == {'detail': 'Connection cannot be created between one city'}
 
+    # Cant create connection with negative or zero distance
+    response = client.post(
+        'connections',
+        json={
+            'from_city_id': 1,
+            'to_city_id': 6,
+            'distance': -1
+        }
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Distance must be greater than 0'}
+
+    response = client.post(
+        'connections',
+        json={
+            'from_city_id': 1,
+            'to_city_id': 6,
+            'distance': 0
+        }
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Distance must be greater than 0'}
+
     # Cant create duplicate connection
     response = client.post(
         'connections',
@@ -42,6 +67,7 @@ def test_create_connections(client):
         }
     )
     assert response.status_code == 400
+    assert response.json() == {'detail': 'Connection already exists or incorrect data provided'}
 
 
 def test_connections_created_path_search(client):
