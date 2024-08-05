@@ -133,6 +133,15 @@ def test_city_update(client):
     assert response.json() == {'id': 5, 'name': 'Vladivostok'}
 
     response = client.patch(
+        'cities/123321',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'City not found'}
+
+    response = client.patch(
         'cities/5',
         json={
             'name': 'Vladivostok'

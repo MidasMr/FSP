@@ -2,7 +2,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOSTNAME: str
+    DB_PORT: str
+    DB_NAME: str
     TESTS_RUN: bool = False
     TEST_DATABASE_URL: str = 'sqlite:///:memory:'
 

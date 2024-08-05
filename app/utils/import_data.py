@@ -1,8 +1,7 @@
 import os
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal, get_db
+from app.db.session import SessionLocal
 from app.db.models import City, Connection
-from fastapi import Depends
 
 
 def load_data(file_path: str):
