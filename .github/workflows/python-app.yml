@@ -16,6 +16,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      DB_USER: some_usr
+      DB_PASSWORD: some_pass
+      DB_HOSTNAME: db
+      DB_PORT: 5432
+      DB_NAME: some_db
 
     steps:
     - uses: actions/checkout@v4
