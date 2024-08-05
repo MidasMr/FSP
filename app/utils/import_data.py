@@ -35,7 +35,6 @@ def save_data_to_db(cities: dict[str, City], connections: list[Connection], db: 
     db.add_all(cities.values())
     db.add_all(connections)
     db.commit()
-    print('SUCCESS')
 
 
 def main():

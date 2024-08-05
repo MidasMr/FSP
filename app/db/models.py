@@ -21,8 +21,7 @@ class Connection(Base):
     to_city = relationship("City", foreign_keys=[to_city_id])
 
     __table_args__ = (
-        # UniqueConstraint('least(from_city_id, to_city_id)', 'greatest(from_city_id, to_city_id)', name='_undirected_connection_uc'),
-        # Index('from_to_index', 'from_city_id', 'to_city_id', unique=True),
+        UniqueConstraint('from_city_id', 'to_city_id', name='_undirected_connection_uc'),
         CheckConstraint('from_city_id <> to_city_id', name='check_from_to_city_diff'),
     )
 

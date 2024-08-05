@@ -33,27 +33,15 @@ def test_create_connections(client):
     assert response.json() == {'detail': 'Connection cannot be created between one city'}
 
     # Cant create duplicate connection
-    # response = client.post(
-    #     'connections',
-    #     json={
-    #         'from_city_id': 1,
-    #         'to_city_id': 5,
-    #         'distance': 1
-    #     }
-    # )
-    # assert response.status_code == 400
-
-    # # Cant create connection with reverse citites order
-    # response = client.post(
-    #     'connections',
-    #     json={
-    #         'from_city_id': 5,
-    #         'to_city_id': 1,
-    #         'distance': 1
-    #     }
-    # )
-
-    # assert response.status_code == 400
+    response = client.post(
+        'connections',
+        json={
+            'from_city_id': 1,
+            'to_city_id': 5,
+            'distance': 1
+        }
+    )
+    assert response.status_code == 400
 
 
 def test_connections_created_path_search(client):

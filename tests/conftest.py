@@ -7,12 +7,12 @@ from sqlalchemy.orm import sessionmaker, Session
 from app.db.base import Base
 from app.db.session import get_db
 from app.utils import import_data
+from app.main import app
+from app.core.config import settings
 
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    settings.TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
@@ -26,19 +26,16 @@ Base.metadata.create_all(bind=engine)
 def db_session() -> Session:
     """Create a new database session with a rollback at the end of the test."""
     connection = engine.connect()
-    transaction = connection.begin()
+    connection.begin()
     session = TestingSessionLocal(bind=connection)
     yield session
     session.close()
-    transaction.rollback()
     connection.close()
 
 
 @pytest.fixture(scope="function")
 def client(db_session: Session):
     """Create a test client that uses the override_get_db fixture to return a session."""
-
-    from app.main import app
 
     def override_get_db():
         try:
