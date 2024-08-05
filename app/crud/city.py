@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.db.models import City, Connection
 from app.schemas.city import CityCreate, CityUpdate
+from app.crud.connection import delete_connection
 
 
 def get_all_cities(db: Session):
@@ -27,6 +28,7 @@ def create_city(db: Session, city: CityCreate):
 
 
 def delete_city(db: Session, id: int):
+
     db.query(City).filter(City.id == id).delete()
     db.query(Connection).filter((Connection.from_city_id == id) | (Connection.to_city_id == id)).delete()
     db.commit()

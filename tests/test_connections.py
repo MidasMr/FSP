@@ -69,6 +69,18 @@ def test_create_connections(client):
     assert response.status_code == 400
     assert response.json() == {'detail': 'Connection already exists or incorrect data provided'}
 
+    # Cant create duplicate connection reversed cities
+    response = client.post(
+        'connections',
+        json={
+            'from_city_id': 5,
+            'to_city_id': 1,
+            'distance': 1
+        }
+    )
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Connection already exists or incorrect data provided'}
+
 
 def test_connections_created_path_search(client):
     response_1 = client.post(

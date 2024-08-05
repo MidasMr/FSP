@@ -1,9 +1,8 @@
 import os
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal, engine
-from app.db.models import Base, City, Connection
-
-Base.metadata.create_all(bind=engine)
+from app.db.session import SessionLocal, get_db
+from app.db.models import City, Connection
+from fastapi import Depends
 
 
 def load_data(file_path: str):
@@ -37,13 +36,10 @@ def save_data_to_db(cities: dict[str, City], connections: list[Connection], db: 
     db.commit()
 
 
-def main():
+def main(db: Session = Depends(get_db)):
     db = SessionLocal()
-    try:
-        cities, connections = load_data('sample.txt')
-        save_data_to_db(cities, connections, db)
-    finally:
-        db.close()
+    cities, connections = load_data('sample.txt')
+    save_data_to_db(cities, connections, db)
 
 
 if __name__ == '__main__':
