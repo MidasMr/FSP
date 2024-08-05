@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from app.db.models import City, Connection
 from app.schemas.city import CityCreate, CityUpdate
-from app.crud.connection import delete_connection
 
 
 def get_all_cities(db: Session):

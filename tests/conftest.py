@@ -1,7 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker, Session
 from testcontainers.postgres import PostgresContainer
 
@@ -10,20 +9,6 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.utils import import_data
 from app.main import app
-from app.core.config import settings
-
-
-# engine = create_engine(
-#     settings.TEST_DATABASE_URL,
-#     connect_args={"check_same_thread": False},
-#     poolclass=StaticPool,
-# )
-# TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# Base.metadata.create_all(bind=engine)
-
-
 
 
 @pytest.fixture(scope="session")
