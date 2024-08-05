@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
-from app.db.models import City
-from app.schemas.city import CityCreate
+from app.db.models import City, Connection
+from app.schemas.city import CityCreate, CityUpdate
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 
 
 def get_all_cities(db: Session):
@@ -20,8 +22,28 @@ def get_city_by_id(db: Session, id: int):
 
 
 def create_city(db: Session, city: CityCreate):
-    db_city = City(name=city.name)
-    db.add(db_city)
-    db.commit()
-    db.refresh(db_city)
+    try:
+        db_city = City(name=city.name)
+        db.add(db_city)
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail='City already exists or incorrect data provided')
     return db_city
+
+
+def delete_city(db: Session, id: int):
+
+    db.query(City).filter(City.id == id).delete()
+    db.query(Connection).filter((Connection.from_city_id == id) | (Connection.to_city_id == id)).delete()
+    db.commit()
+
+
+def update_city(db: Session, id: int, city: CityUpdate):
+    db_city = db.query(City).filter(
+        City.id == id
+    )
+    db_city.update(
+        city.model_dump(exclude_unset=True)
+    )
+    db.commit()
+    return db_city.first()

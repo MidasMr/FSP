@@ -1,4 +1,5 @@
 from app.crud.city import get_city_by_name
+from app.crud.connection import get_all_connections
 
 
 def test_find_shortest_path_no_city(client, db_session):
@@ -65,15 +66,16 @@ def test_city_creation(client):
     assert response.status_code == 201
     assert response.json() == {'id': 10, 'name': 'Vladivostok'}
 
-    # Check can create city with same name
+    # Check cant create city with same name
     response = client.post(
         'cities',
         json={
             'name': 'Vladivostok'
         }
     )
-    assert response.status_code == 201
-    assert response.json() == {'id': 11, 'name': 'Vladivostok'}
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'City already exists or incorrect data provided'}
+
 
 def test_cities_list(client):
     response = client.get('cities')
@@ -90,3 +92,60 @@ def test_cities_list(client):
         {'name': 'Eastlake', 'id': 8},
         {'name': 'Northup', 'id': 9}
     ]
+
+
+def test_city_delete(client, db_session):
+    connections_count_before = len(get_all_connections(db_session))
+
+    response = client.get('cities/5/connections')
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+
+    response = client.delete('cities/5')
+    assert response.status_code == 204
+
+    response = client.delete('cities/5')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'City not found'}
+
+    print(len(get_all_connections(db_session)))
+    assert len(get_all_connections(db_session)) == connections_count_before - 2
+
+    response = client.get('cities/5')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'City not found'}
+
+
+def test_city_detail(client):
+    response = client.get('cities/5')
+    assert response.status_code == 200
+    assert response.json() == {'name': 'Seattle', 'id': 5}
+
+
+def test_city_update(client):
+    response = client.patch(
+        'cities/5',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 200
+    assert response.json() == {'id': 5, 'name': 'Vladivostok'}
+
+    response = client.patch(
+        'cities/123321',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'City not found'}
+
+    response = client.patch(
+        'cities/5',
+        json={
+            'name': 'Vladivostok'
+        }
+    )
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Prodvided city name matches current name'}

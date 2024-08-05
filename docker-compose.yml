@@ -1,24 +1,24 @@
 version: "3.9"
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:15
+    container_name: fsp-db
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    expose:
-      - 5432
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
     volumes:
       - fsp-data:/var/lib/postgresql/data
   app:
     build: .
+    container_name: fsp-app
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; alembic upgrade head && uvicorn app.main:app --host 0.0.0.0'
     ports:
       - "8008:8000"
     depends_on:
       - db
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
 
 volumes:
   fsp-data:

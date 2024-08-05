@@ -1,9 +1,7 @@
 import os
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal, engine
-from app.db.models import Base, City, Connection
-
-Base.metadata.create_all(bind=engine)
+from app.db.session import SessionLocal
+from app.db.models import City, Connection
 
 
 def load_data(file_path: str):
@@ -35,7 +33,6 @@ def save_data_to_db(cities: dict[str, City], connections: list[Connection], db: 
     db.add_all(cities.values())
     db.add_all(connections)
     db.commit()
-    print('SUCCESS')
 
 
 def main():

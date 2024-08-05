@@ -1,37 +1,46 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker, Session
+from testcontainers.postgres import PostgresContainer
 
 from app.db.base import Base
 from app.db.session import get_db
-from app.main import app
 from app.utils import import_data
+from app.main import app
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+@pytest.fixture(scope="session")
+def db_container():
+    with PostgresContainer("postgres:15.2") as postgres:
+        engine = create_engine(postgres.get_connection_url())
+        SessionTesting = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        yield SessionTesting, engine
 
-
-Base.metadata.create_all(bind=engine)
+        engine.dispose()
 
 
 @pytest.fixture(scope="function")
-def db_session() -> Session:
+def clean_container(db_container):
+    SessionTesting, engine = db_container
+    Base.metadata.create_all(bind=engine)
+
+    yield SessionTesting, engine
+
+    Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def db_session(clean_container) -> Session:
     """Create a new database session with a rollback at the end of the test."""
+    session_testing, engine = clean_container
+
     connection = engine.connect()
-    transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
+    connection.begin()
+    session = session_testing(bind=connection)
     yield session
     session.close()
-    transaction.rollback()
     connection.close()
 
 
