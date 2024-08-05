@@ -28,7 +28,7 @@ def create_connection(db: Session, connection: ConnectionCreate):
         )
         db.add(connection)
         db.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         raise HTTPException(status_code=400, detail='Connection already exists or incorrect data provided')
     return connection
 

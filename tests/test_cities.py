@@ -1,6 +1,5 @@
 from app.crud.city import get_city_by_name
 from app.crud.connection import get_all_connections
-from app.db.models import Connection
 
 
 def test_find_shortest_path_no_city(client, db_session):
@@ -76,6 +75,7 @@ def test_city_creation(client):
     )
     assert response.status_code == 201
     assert response.json() == {'id': 11, 'name': 'Vladivostok'}
+
 
 def test_cities_list(client):
     response = client.get('cities')

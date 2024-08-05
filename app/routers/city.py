@@ -60,7 +60,10 @@ def connections_for_city(city_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{city_id}/connections", response_model=ConnectionSchema, status_code=201)
 def create_connection_for_city(city_id: int, connection: ConnectionNestedCreate, db: Session = Depends(get_db)):
-    return connection_crud.create_connection(db=db, connection=ConnectionCreate(**connection.model_dump(), from_city_id=city_id))
+    return connection_crud.create_connection(
+        db=db,
+        connection=ConnectionCreate(**connection.model_dump(), from_city_id=city_id)
+    )
 
 
 @router.delete("/{city_id}", status_code=204)

@@ -137,12 +137,13 @@ def test_connections_created_path_search(client):
     assert response.status_code == 200
     assert response.json() == {'city': 'Vladivostok', 'result': {'distance': 800, 'targetCity': 'Khabarovsk'}}
 
+
 def test_create_connection_nested_to_city(client, db_session):
     response = client.post(
         f'cities/{get_city_by_name(db_session, "SoDo").id}/connections',
         json={
             'to_city_id': get_city_by_name(db_session, "Issaquah").id,
-            'distance': 10 
+            'distance': 10
         }
     )
 
