@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from app.db.base import Base
 from app.db.session import get_db
-from app.main import app
 from app.utils import import_data
 
 
@@ -38,6 +37,8 @@ def db_session() -> Session:
 @pytest.fixture(scope="function")
 def client(db_session: Session):
     """Create a test client that uses the override_get_db fixture to return a session."""
+
+    from app.main import app
 
     def override_get_db():
         try:
