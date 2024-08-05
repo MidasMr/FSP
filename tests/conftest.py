@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from testcontainers.postgres import PostgresContainer
 
-
 from app.db.base import Base
 from app.db.session import get_db
 from app.utils import import_data

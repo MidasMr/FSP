@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.db.models import City, Connection
 from app.schemas.city import CityCreate, CityUpdate
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 
 
 def get_all_cities(db: Session):
@@ -20,9 +22,12 @@ def get_city_by_id(db: Session, id: int):
 
 
 def create_city(db: Session, city: CityCreate):
-    db_city = City(name=city.name)
-    db.add(db_city)
-    db.commit()
+    try:
+        db_city = City(name=city.name)
+        db.add(db_city)
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail='City already exists or incorrect data provided')
     return db_city
 
 

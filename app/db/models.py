@@ -22,6 +22,14 @@ class City(Base):
         viewonly=True
     )
 
+    __table_args__ = (
+        Index(
+            'uq_city',
+            name,
+            unique=True
+        ),
+    )
+
 
 class Connection(Base):
     __tablename__ = 'connections'

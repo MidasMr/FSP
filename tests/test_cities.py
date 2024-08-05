@@ -66,15 +66,15 @@ def test_city_creation(client):
     assert response.status_code == 201
     assert response.json() == {'id': 10, 'name': 'Vladivostok'}
 
-    # Check can create city with same name
+    # Check cant create city with same name
     response = client.post(
         'cities',
         json={
             'name': 'Vladivostok'
         }
     )
-    assert response.status_code == 201
-    assert response.json() == {'id': 11, 'name': 'Vladivostok'}
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'City already exists or incorrect data provided'}
 
 
 def test_cities_list(client):
