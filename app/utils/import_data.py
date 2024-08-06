@@ -1,7 +1,12 @@
 import os
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal
-from app.db.models import City, Connection
+from app.db.session import SessionLocal, engine
+from app.db.models import City, Connection, Base
+from app.core.config import settings
+
+
+if not settings.TESTS_RUN:
+    Base.metadata.create_all(bind=engine)
 
 
 def load_data(file_path: str):
